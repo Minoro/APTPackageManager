@@ -24,7 +24,8 @@ class PackageInstall:
         Args:
             comando: comando utilizado pelo gerenciador de pacotes para atualizações
         """
-        print('Atualizando')
+        if self.verbose:
+            print('Atualizando')
 
         try:
 
