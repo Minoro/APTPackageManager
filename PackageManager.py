@@ -21,8 +21,7 @@ class PackageInstall:
         """
         Atualiza o repositório
 
-        Args:
-            comando: comando utilizado pelo gerenciador de pacotes para atualizações
+        :param comando, comando utilizado pelo gerenciador de pacotes para atualizações
         """
         if self.verbose:
             print('Atualizando')
@@ -32,9 +31,7 @@ class PackageInstall:
             update_process = subprocess.Popen([self.package_manager, command, '-y'],
                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             if self.verbose:
-                print('Verbose')
-                for stdout_line in update_process.stdout:
-                    print(stdout_line.decode('utf-8'), end='', flush=True)
+                self.__verbose_process__(update_process)
 
             print('\n'+'-'*20+'Repositório Atualizado'+'-'*20)
         except subprocess.TimeoutExpired as e:
@@ -44,3 +41,39 @@ class PackageInstall:
             if self.verbose:
                 print(e.output)
             raise e
+
+    def search(self, package):
+        """
+        Busca pacotes baseados no nome informado
+        :param package: nome do pacote buscado
+        :return: dict no formato [nome_do_pacote : descricao]
+        """
+
+        print('Buscando Pacote '+package)
+        search_process = subprocess.Popen(['apt-cache', 'search', package],
+                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        verbose_buffer = "" #armazena a saida para utilizar no verbose
+        packages = {}
+        for stdout_line in search_process.stdout:
+            package = stdout_line.decode('utf-8')
+            verbose_buffer += package
+            p = package.split(' - ')
+            if len(p) >= 2:
+                packages[p[0]] = p[1].rstrip('\n')
+
+        if self.verbose:
+            print('Verbose')
+            print(verbose_buffer)
+
+        return packages
+
+    def __verbose_process__(self, process, enconde='utf-8'):
+        """
+        Exibe a saida do programa
+        :param process: subprocess a ter a saida exibida
+        :param encode: encode utilizado para exibir as mensagens
+        """
+        print('Verbose')
+        for stdout_line in process.stdout:
+            print(stdout_line.decode(enconde), end='', flush=True)
