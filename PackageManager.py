@@ -2,7 +2,7 @@
 import subprocess
 
 
-class PackageInstall:
+class PackageManager:
     """
         Classe para instalar os pacotes por meio do terminal
     """
@@ -70,8 +70,8 @@ class PackageInstall:
             if len(package) >= 2:
                 self.cache[package[0]] = ''.join(package[1:])
 
-        # if self.verbose:
-        #     print(output)
+        if self.verbose:
+            print(output)
 
         return self.cache
 
