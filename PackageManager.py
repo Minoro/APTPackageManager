@@ -32,13 +32,16 @@ class PackageInstall:
 
             update_process = subprocess.Popen([self.package_manager, command, '-y'],
                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if self.verbose:
-                self.__verbose_process__(update_process)
 
-            print('\n'+'-'*20+'Repositório Atualizado'+'-'*20)
+            output = self.__run_process__(update_process)
+
+            if self.verbose:
+                print(output)
+
+            print('\n' + '-' * 20 + 'Repositório Atualizado' + '-' * 20)
         except subprocess.TimeoutExpired as e:
             update_process.kill()
-            print('\n-'*20+'Erro ao atualizar Repositório'+'-'*20)
+            print('\n-' * 20 + 'Erro ao atualizar Repositório' + '-' * 20)
 
             if self.verbose:
                 print(e.output)
@@ -54,31 +57,34 @@ class PackageInstall:
         if self.cache is not None:
             return self.cache
 
-        print('Buscando Pacote '+package)
+        print('Buscando Pacote ' + package)
         search_process = subprocess.Popen(['apt-cache', 'search', package],
-                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        verbose_buffer = "" #armazena a saida para utilizar no verbose
+        output = self.__run_process__(search_process)
+
         self.cache = {}
-        for stdout_line in search_process.stdout:
-            package = stdout_line.decode('utf-8')
-            verbose_buffer += package
-            p = package.split(' - ')
-            if len(p) >= 2:
-                self.cache[p[0]] = p[1].rstrip('\n')
+        for line in output.split('\n'):
+            package = line.split(' - ')
 
-        if self.verbose:
-            print('Verbose')
-            print(verbose_buffer)
+            if len(package) >= 2:
+                self.cache[package[0]] = ''.join(package[1:])
+
+        # if self.verbose:
+        #     print(output)
 
         return self.cache
 
-    def __verbose_process__(self, process, enconde='utf-8'):
+    def __run_process__(self, process, enconde='utf-8'):
         """
-        Exibe a saida do programa
+        Executa um processo
         :param process: subprocess a ter a saida exibida
         :param encode: encode utilizado para exibir as mensagens
+        :return string: saida do terminal
         """
-        print('Verbose')
+        verbose_buffer = ""
         for stdout_line in process.stdout:
-            print(stdout_line.decode(enconde), end='', flush=True)
+            output = stdout_line.decode(enconde)
+
+            verbose_buffer += output
+        return verbose_buffer
