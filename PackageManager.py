@@ -4,7 +4,7 @@ import subprocess
 
 class PackageManager:
     """
-        Classe para instalar os pacotes por meio do terminal
+        Classe para gerenciar os pacotes por meio de comandos do terminal
     """
 
     def __init__(self, **kwargs):
@@ -17,39 +17,30 @@ class PackageManager:
             self.verbose = False
 
         if 'package_manager' not in kwargs:
-            self.package_manager = "apt-get"
+            self.package_manager = 'apt-get'
 
-    def update_repository(self, command="update"):
+        if 'cmd_update' not in kwargs:
+            self.cmd_update = 'update'
+
+    def update_repository(self):
         """
-        Atualiza o repositório
-
-        :param comando, comando utilizado pelo gerenciador de pacotes para atualizações
+        Atualiza o repositório. Equivale a apt-get update -y
         """
         if self.verbose:
             print('Atualizando')
 
-        try:
+        update_process = subprocess.Popen([self.package_manager, self.cmd_update, '-y'],
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = self.__run_process__(update_process)
 
-            update_process = subprocess.Popen([self.package_manager, command, '-y'],
-                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if self.verbose:
+            print(output)
 
-            output = self.__run_process__(update_process)
-
-            if self.verbose:
-                print(output)
-
-            print('\n' + '-' * 20 + 'Repositório Atualizado' + '-' * 20)
-        except subprocess.TimeoutExpired as e:
-            update_process.kill()
-            print('\n-' * 20 + 'Erro ao atualizar Repositório' + '-' * 20)
-
-            if self.verbose:
-                print(e.output)
-            raise e
+        print('\n' + '-' * 20 + 'Repositório Atualizado' + '-' * 20)
 
     def search(self, package):
         """
-        Busca pacotes baseados no nome informado
+        Busca pacotes baseados no nome informado. Equivale a apt-cache search pacote
         :param package: nome do pacote buscado
         :return: dict no formato [nome_do_pacote : descricao]
         """
@@ -74,6 +65,14 @@ class PackageManager:
             print(output)
 
         return self.cache
+
+    def install_package(self, package):
+        """
+        Instala um unico pacote informado como argumento. Equivale a apt-get install pacote -y
+        :param package: pacote a ser instalado
+        :return string: saida do terminal
+        """
+        pass
 
     def __run_process__(self, process, enconde='utf-8'):
         """
