@@ -66,13 +66,24 @@ class PackageManager:
 
         return self.cache
 
-    def install_package(self, package):
+    def install(self, packages):
         """
-        Instala um unico pacote informado como argumento. Equivale a apt-get install pacote -y
-        :param package: pacote a ser instalado
+        Instala um número arbitrário de pacotes. Equivale a apt-get install -y [pacote1, pacote2, ..., pacoteN]
+        :param package list: uma lista de pacotes
         :return string: saida do terminal
         """
-        pass
+        if type(packages) == type(''):
+            packages = [packages]
+
+        install_process = subprocess.Popen([self.package_manager, 'install', '-y'] + packages,
+                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        output = self.__run_process__(install_process)
+
+        if self.verbose:
+            print(output)
+
+        return output
 
     def __run_process__(self, process, enconde='utf-8'):
         """
