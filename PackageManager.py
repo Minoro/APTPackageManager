@@ -36,16 +36,12 @@ class PackageManager:
         if self.verbose:
             print(output)
 
-        print('\n' + '-' * 20 + 'Repositório Atualizado' + '-' * 20)
-
     def search(self, package):
         """
         Busca pacotes baseados no nome informado. Equivale a apt-cache search pacote
         :param package: nome do pacote buscado
         :return: dict no formato [nome_do_pacote : descricao]
         """
-
-        print('Buscando Pacote ' + package)
         search_process = subprocess.Popen(['apt-cache', 'search', package],
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
