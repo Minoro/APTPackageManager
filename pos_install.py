@@ -3,14 +3,13 @@
 import subprocess
 
 programs_dev = ['python3', 'git', 'openjdk-9-jdk', 'python-software-properties',
-                'php7.0', 'php7.0-fpm', 'php7.0-mysql', 'libapache2-mod-php7.0', 'composer']
+                'php7.0', 'php7.0-fpm', 'php7.0-mysql', 'libapache2-mod-php7.0', 'composer', 'gcc', 'g++']
 
 programs_dev_research = ['python3-scipy', 'octave', 'r-base', 'python-matplotlib', 'text_live',
                          'texlive-latex-extra', 'texlive-lang-portuguese', 'texlive-math-extra']
 
 programs_media = ['vlc', 'amarok' ]
 programs_utils = ['wine']
-
 
 def install_media(**kwargs):
 
@@ -28,11 +27,18 @@ def install_media(**kwargs):
             print('Erro ao installar o programa')
             output, _ = install_process.communicate()
 
-
     print(output)
 
+
+
 def __main__(**kwargs):
-    install_all()
+    from PackageManager import PackageManager
+
+    package_install = PackageManager(verbose=True)
+    # p = package_install.search('vlc')
+    # print(p)
+    # package_install.update_repository()
+    package_install.install(['vlc', 'amarok'])
 
 if __name__ == '__main__':
     __main__()
