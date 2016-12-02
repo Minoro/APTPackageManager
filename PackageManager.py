@@ -45,21 +45,43 @@ class PackageManager:
         :return: dict no formato [nome_do_pacote : descricao]
         """
 
-        if self.cache is not None:
-            return self.cache
-
         print('Buscando Pacote ' + package)
         search_process = subprocess.Popen(['apt-cache', 'search', package],
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         output = self.__run_process__(search_process)
 
-        self.cache = {}
+        packages = {}
         for line in output.split('\n'):
             package = line.split(' - ')
 
             if len(package) >= 2:
-                self.cache[package[0]] = ''.join(package[1:])
+                packages[package[0]] = ''.join(package[1:])
+
+        if self.verbose:
+            print(output)
+
+        return packages
+
+    def get_cache(self, update=False):
+        """
+        Retorna o cache do repositório.
+        :param update: atualiza o cache antes do retorno
+        :return: dict contendo os pacotes do cache
+        """
+
+        if self.cache is None or update:
+            cache_process = subprocess.Popen(['apt-cache', 'search', '.'],
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            output = self.__run_process__(cache_process)
+
+            self.cache = {}
+            for line in output.split('\n'):
+                package = line.split(' - ')
+
+                if len(package) >= 2:
+                    self.cache[package[0]] = ''.join(package[1:])
 
         if self.verbose:
             print(output)
@@ -69,7 +91,7 @@ class PackageManager:
     def install(self, packages):
         """
         Instala um número arbitrário de pacotes. Equivale a apt-get install -y [pacote1, pacote2, ..., pacoteN]
-        :param package list: uma lista de pacotes
+        :param packages: uma lista de pacotes
         :return string: saida do terminal
         """
         if type(packages) == type(''):
